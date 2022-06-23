@@ -1,1 +1,3 @@
-# GMONachhilfeboerse.Docker
+# NachhilfeboerseDocker
+
+Die Dockerkonfiguration für die Nachhilfebörse

@@ -1,0 +1,58 @@
+version: "3.1"
+
+services:
+    nhb_frontend:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        container_name: nhb_frontend
+        image: gmonachhilfeboerse.frontend:latest
+        ports:
+            - 80:80
+            - 443:443
+        environment:
+            SECRET_TOKEN: <YOUR_SECRET_WEBHOOK_TOKEN>
+        depends_on:
+            - nhb_api
+        networks:
+            - nhb_network
+
+    nhb_api:
+        container_name: nhb_api
+        image: ghcr.io/plisjan/gmonachhilfeboerse.api:main
+        environment:
+            DB_HOST: nhb_database
+            DB_PORT: 3306
+            DB_USERNAME: <YOUR_DB_USERNAME>
+            DB_PASSWORD: <YOUR_DB_PASSWORD>
+            DB_SCHEMA: nachhilfeboerse
+        networks:
+            - nhb_network
+
+    nhb_database:
+        image: mariadb:latest
+        container_name: nhb_mysql
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_ROOT_PASSWORD: <YOUR_DB_ROOT_PASSWORD>
+            MYSQL_DATABASE: nachhilfeboerse
+            MYSQL_USER: <YOUR_DB_USERNAME>
+            MYSQL_PASSWORD: <YOUR_DB_PASSWORD>
+        volumes:
+            - ./data/db:/var/lib/mysql
+        networks:
+            - nhb_network
+
+    phpMyAdmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpMyAdmin
+        ports:
+            - 8080:80
+        environment:
+            PMA_HOST: nhb_database
+            MYSQL_ROOT_PASSWORD: <YOUR_DB_ROOT_PASSWORD>
+        networks:
+            - nhb_network
+
+networks:
+    nhb_network:
